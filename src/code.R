@@ -97,14 +97,32 @@ ggplot(pcr_scale, aes(PC1, PC2, color=Group)) + geom_point(size=3)
 
 
 #### Heatmap and Correlation of samples ####
+##### Heatmap and Correlation of All samples #####
 ex.scale.cor <- cor(ex.scale)
-#pdf("result/pheatmap.pdf", width = 10, height = 10)
+#pdf("result/pheatmap-all.pdf", width = 10, height = 10)
 pheatmap(ex.scale.cor, 
          labels_row = gset$source_name_ch1, 
          labels_col = gset$source_name_ch1, 
          color = bluered(255), border_color = NA)
 #dev.off()
-
+##### Heatmap and Correlation of normal samples #####
+df <- data.frame(ex.scale.cor)
+a <- t(df)
+colnames(a) <- gset$source_name_ch1
+a <- t(a)
+colnames(a) <- gset$source_name_ch1
+cols <- gset$source_name_ch1
+cols <- cols[cols != "AML Patient"]
+b <- subset(a, select=cols)
+b <- t(b)
+cols <- gset$source_name_ch1
+cols <- cols[cols != "AML Patient"]
+b <- subset(b, select=cols)
+b <- t(b)
+b.cor <- cor(b)
+pdf("result/pheatmap-normal.pdf", width = 10, height = 10)
+pheatmap(b.cor, color = bluered(255), border_color = NA)
+dev.off()
 
 #### Finding sorted correlation with AML Patient ####
 df <- data.frame(ex.scale.cor)
@@ -202,8 +220,4 @@ aml.down <- subset(tT, logFC < -1 & adj.P.Val > 0.05)
 aml.down.genes <- unique(as.character(strsplit2(unique(aml.down$Gene.symbol), "///")))
 write.table(aml.down.genes, "result/dea/dea_AMLPatient-CD34pHSPC_Down.txt", 
             quote=F, row.names=F, col.names=F)
-
-
-
-
 
