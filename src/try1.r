@@ -146,7 +146,7 @@ fit2 <- eBayes(fit2, 0.01)
 ## adjust by: fault-discovery-rate or Benjamini-hochberg
 ## sort by adj.P.Val
 tT <- topTable(fit2, adjust="fdr", sort.by="B", number=Inf)
-tT <- subset(tT, select=c("Gene.symbol", "Gene.ID","adj.P.Val","logFC", "B"))
+tT <- subset(tT, select=c("Gene.symbol","Gene.ID","adj.P.Val","logFC", "B"))
 write.table(tT, "result/dea/dea_test-normal_B.txt", row.names=F, sep="\t", quote=F)
 ### Top Gene Expression mining 
 aml.up <- subset(tT, logFC > 1 & adj.P.Val > 0.05)
