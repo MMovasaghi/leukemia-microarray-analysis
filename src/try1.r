@@ -121,7 +121,7 @@ cols <- cols[cols == "AML Patient"]
 b <- subset(b, select=cols)
 b <- t(b)
 bB <- b
-maxCor <- data.frame(Genes = unique(colnames(bB)[max.col(bB,ties.method="first")]), 
+maxCor <- data.frame(Cells = unique(colnames(bB)[max.col(bB,ties.method="first")]), 
                     CorWithAML = unique(rowMax(bB)))
 for (x in 1:4) {
   cols <- colnames(bB)
@@ -159,13 +159,11 @@ write.table(aml.down.genes, "result/dea/dea_test-normal_Down.txt",
             quote=F, row.names=F, col.names=F)
 
 ##### based on top correlated cells #####
-
 design <- model.matrix(~source_name_ch1 + 0, gset)
 sfl <- factor(sname.gs)
 colnames(design) <- levels(sfl)
 ## fitting linear model to data
 fit <- lmFit(gset, design)
-
 ###### AMLPatient-Monocytes ######
 cont.matrix <- makeContrasts(AMLPatient-Monocytes, levels=design)
 fit2 <- contrasts.fit(fit, cont.matrix)
@@ -185,7 +183,6 @@ aml.down <- subset(tT, logFC < -1 & adj.P.Val > 0.05)
 aml.down.genes <- unique(as.character(strsplit2(unique(aml.down$Gene.symbol), "///")))
 write.table(aml.down.genes, "result/dea/dea_AMLPatient-Monocytes_Down.txt", 
             quote=F, row.names=F, col.names=F)
-
 ###### AMLPatient-CD34+HSPC ######
 cont.matrix <- makeContrasts(AMLPatient-CD34pHSPC, levels=design)
 fit2 <- contrasts.fit(fit, cont.matrix)
@@ -205,9 +202,6 @@ aml.down <- subset(tT, logFC < -1 & adj.P.Val > 0.05)
 aml.down.genes <- unique(as.character(strsplit2(unique(aml.down$Gene.symbol), "///")))
 write.table(aml.down.genes, "result/dea/dea_AMLPatient-CD34pHSPC_Down.txt", 
             quote=F, row.names=F, col.names=F)
-
-
-
 
 
 
