@@ -12,7 +12,6 @@
 
 library(GEOquery)
 library(limma)
-library(umap)
 library(pheatmap)
 library(gplots)
 library(ggplot2)
@@ -95,6 +94,9 @@ plot(pc_scale$x[,1:2])
 pcr_scale <- data.frame(pc_scale$r[,1:3], Group = gset$group)
 ggplot(pcr_scale, aes(PC1, PC2, color=Group)) + geom_point(size=3)
 
+pcr_scale <- data.frame(pc_scale$r[,1:3], SourceName = gset$source_name_ch1)
+ggplot(pcr_scale, aes(PC1, PC2, color=SourceName)) + geom_point(size=3)
+
 
 #### Heatmap and Correlation of samples ####
 ##### Heatmap and Correlation of All samples #####
@@ -120,9 +122,9 @@ cols <- cols[cols != "AML Patient"]
 b <- subset(b, select=cols)
 b <- t(b)
 b.cor <- cor(b)
-pdf("result/pheatmap-normal.pdf", width = 10, height = 10)
+#pdf("result/pheatmap-normal.pdf", width = 10, height = 10)
 pheatmap(b.cor, color = bluered(255), border_color = NA)
-dev.off()
+#dev.off()
 
 #### Finding sorted correlation with AML Patient ####
 df <- data.frame(ex.scale.cor)
@@ -161,17 +163,17 @@ fit <- lmFit(gset, design)
 cont.matrix <- makeContrasts(test-normal, levels=design)
 fit2 <- contrasts.fit(fit, cont.matrix)
 fit2 <- eBayes(fit2, 0.01)
-## adjust by: fault-discovery-rate or Benjamini-hochberg
+## adjust by: false-discovery-rate or Benjamini-hochberg
 ## sort by adj.P.Val
 tT <- topTable(fit2, adjust="fdr", sort.by="B", number=Inf)
 tT <- subset(tT, select=c("Gene.symbol","Gene.ID","adj.P.Val","logFC", "B"))
 write.table(tT, "result/dea/dea_test-normal_B.txt", row.names=F, sep="\t", quote=F)
 ### Top Gene Expression mining 
-aml.up <- subset(tT, logFC > 1 & adj.P.Val > 0.05)
+aml.up <- subset(tT, logFC > 1 & adj.P.Val < 0.05)
 aml.up.genes <- unique(as.character(strsplit2(unique(aml.up$Gene.symbol), "///")))
 write.table(aml.up.genes, "result/dea/dea_test-normal_Up.txt", 
             quote=F, row.names=F, col.names=F)
-aml.down <- subset(tT, logFC < -1 & adj.P.Val > 0.05)
+aml.down <- subset(tT, logFC < -1 & adj.P.Val < 0.05)
 aml.down.genes <- unique(as.character(strsplit2(unique(aml.down$Gene.symbol), "///")))
 write.table(aml.down.genes, "result/dea/dea_test-normal_Down.txt", 
             quote=F, row.names=F, col.names=F)
@@ -186,18 +188,18 @@ fit <- lmFit(gset, design)
 cont.matrix <- makeContrasts(AMLPatient-Monocytes, levels=design)
 fit2 <- contrasts.fit(fit, cont.matrix)
 fit2 <- eBayes(fit2, 0.01)
-## adjust by: fault-discovery-rate or Benjamini-hochberg
+## adjust by: false-discovery-rate or Benjamini-hochberg
 ## sort by adj.P.Val
 tT <- topTable(fit2, adjust="fdr", sort.by="B", number=Inf)
 tT <- subset(tT, select=c("Gene.symbol", "Gene.ID","adj.P.Val","logFC", "B"))
 write.table(tT, "result/dea/dea_AMLPatient-Monocytes_B.txt", 
             row.names=F, sep="\t", quote=F)
 ### Top Gene Expression mining 
-aml.up <- subset(tT, logFC > 1 & adj.P.Val > 0.05)
+aml.up <- subset(tT, logFC > 1 & adj.P.Val < 0.05)
 aml.up.genes <- unique(as.character(strsplit2(unique(aml.up$Gene.symbol), "///")))
 write.table(aml.up.genes, "result/dea/dea_AMLPatient-Monocytes_Up.txt", 
             quote=F, row.names=F, col.names=F)
-aml.down <- subset(tT, logFC < -1 & adj.P.Val > 0.05)
+aml.down <- subset(tT, logFC < -1 & adj.P.Val < 0.05)
 aml.down.genes <- unique(as.character(strsplit2(unique(aml.down$Gene.symbol), "///")))
 write.table(aml.down.genes, "result/dea/dea_AMLPatient-Monocytes_Down.txt", 
             quote=F, row.names=F, col.names=F)
@@ -205,18 +207,18 @@ write.table(aml.down.genes, "result/dea/dea_AMLPatient-Monocytes_Down.txt",
 cont.matrix <- makeContrasts(AMLPatient-CD34pHSPC, levels=design)
 fit2 <- contrasts.fit(fit, cont.matrix)
 fit2 <- eBayes(fit2, 0.01)
-## adjust by: fault-discovery-rate or Benjamini-hochberg
+## adjust by: false-discovery-rate or Benjamini-hochberg
 ## sort by adj.P.Val
 tT <- topTable(fit2, adjust="fdr", sort.by="B", number=Inf)
 tT <- subset(tT, select=c("Gene.symbol", "Gene.ID","adj.P.Val","logFC", "B"))
 write.table(tT, "result/dea/dea_AMLPatient-CD34pHSPC_B.txt", 
             row.names=F, sep="\t", quote=F)
 ### Top Gene Expression mining 
-aml.up <- subset(tT, logFC > 1 & adj.P.Val > 0.05)
+aml.up <- subset(tT, logFC > 1 & adj.P.Val < 0.05)
 aml.up.genes <- unique(as.character(strsplit2(unique(aml.up$Gene.symbol), "///")))
 write.table(aml.up.genes, "result/dea/dea_AMLPatient-CD34pHSPC_Up.txt", 
             quote=F, row.names=F, col.names=F)
-aml.down <- subset(tT, logFC < -1 & adj.P.Val > 0.05)
+aml.down <- subset(tT, logFC < -1 & adj.P.Val < 0.05)
 aml.down.genes <- unique(as.character(strsplit2(unique(aml.down$Gene.symbol), "///")))
 write.table(aml.down.genes, "result/dea/dea_AMLPatient-CD34pHSPC_Down.txt", 
             quote=F, row.names=F, col.names=F)
