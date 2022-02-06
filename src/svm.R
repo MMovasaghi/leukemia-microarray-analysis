@@ -55,16 +55,9 @@ sname.gs <- factor(sname)
 # Expression of gset and scaleing
 ex <- exprs(gset)
 ex.scale <- t(scale(t(ex), scale = F))
-ex.t <- t(ex.scale)
-
-design <- model.matrix(~group + 0, gset)
-colnames(design) <- levels(gs)
-
-
 pc <- prcomp(ex.scale)
 plot(pc)
 pcr <- data.frame(pc$r[,1:2], group = gset$group)
-
 
 set.seed(123)
 split = sample.split(pcr$group, SplitRatio = 0.75)
@@ -76,7 +69,9 @@ test_set = subset(pcr, split == FALSE)
 classifier = svm(formula = group ~ .,
                  data = training_set,
                  type = 'C-classification',
-                 kernel = 'linear')
+                 kernel = 'sigmoid',
+                 degree=4,
+                 coef0=1)
 
 y_pred = predict(classifier, newdata = test_set)
 cm = table(test_set[, 3], y_pred)
@@ -96,12 +91,11 @@ plot(set[, -3],
      main = 'SVM (Training set)',
      xlab = 'PC2', ylab = 'PC1',
      xlim = range(X1), ylim = range(X2))
+legend("Normal", "Test")
 
 contour(X1, X2, matrix(as.numeric(y_grid), length(X1), length(X2)), add = TRUE)
-
-points(grid_set, pch = '.', col = ifelse(y_grid == 1, 'coral1', 'aquamarine'))
-
-points(set, pch = 21, bg = ifelse(set[, 3] == 1, 'green4', 'red3'))
+points(grid_set, pch = '.', col = ifelse(y_grid == 'test', 'coral1', 'aquamarine'))
+points(set, pch = 21, bg = ifelse(set[, 3] == 'test', 'green4', 'red3'))
 
 
 
@@ -118,10 +112,8 @@ plot(set[, -3], main = 'SVM (Test set)',
      xlim = range(X1), ylim = range(X2))
 
 contour(X1, X2, matrix(as.numeric(y_grid), length(X1), length(X2)), add = TRUE)
-
-points(grid_set, pch = '.', col = ifelse(y_grid == 1, 'coral1', 'aquamarine'))
-
-points(set, pch = 21, bg = ifelse(set[, 3] == 1, 'green4', 'red3'))
+points(grid_set, pch = '.', col = ifelse(y_grid == 'test', 'coral1', 'aquamarine'))
+points(set, pch = 21, bg = ifelse(set[, 3] == 'test', 'green4', 'red3'))
 
 
 
